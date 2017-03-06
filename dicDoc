@@ -1,0 +1,58 @@
+#!/bin/bash
+
+dic_dir=${HOME}/study/dics
+dic_file=${dic_dir}/dics.txt
+yrf=${HOME}/stools/youdao_ret_format.sed
+
+
+if [ ! -d ${dic_dir} ]; then
+	mkdir ${dic_dir} -p
+fi
+
+function addToDoc() {
+	echo $1 >> ${dic_file}
+}
+
+function queryYoudao() {
+	curl -s "http://fanyi.youdao.com/openapi.do?keyfrom=youdao111&key=60638690&type=data&doctype=xml&version=1.1&q=$1" | sed -nf ${yrf} 
+}
+
+function usage() {
+	self=${0##*/}
+	echo "简述："
+	echo "	单词本功能，单词本默认存储在~/study/dics/dics.txt中，没有会创建"
+	echo "SYNOPSIS"
+	echo "	$self command [word]"
+	echo "参数："
+	echo "	add 添加一个单词到生词本"
+	echo "	ls 展示生词本前10个单词"
+	echo "	del 从生词本删除指定单词"
+	echo "	ck 通过有道词典在线查看单词释义"
+	echo "	ca ck \& add"
+	echo "	"
+}
+
+case $1 in
+	add) 
+		addToDoc $2
+		;;
+	ls)
+		head ${dic_file} 
+		;;
+	del)
+		cat ${dic_file} | sed "/^$2$/d" > ${dic_file}.tmp
+		mv ${dic_file}.tmp ${dic_file}
+		;;
+	ck)
+		queryYoudao $2
+		;;
+	ca)
+		queryYoudao $2
+		addToDoc $2
+		;;
+	*)
+		# default action is addition.
+		usage
+		;;
+esac
+
