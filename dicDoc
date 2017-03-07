@@ -3,10 +3,16 @@
 dic_dir=${HOME}/study/dics
 dic_file=${dic_dir}/dics.txt
 yrf=${HOME}/stools/youdao_ret_format.sed
+self=${0##*/}
+youdao=${dic_dir}/youdao
 
 
 if [ ! -d ${dic_dir} ]; then
 	mkdir ${dic_dir} -p
+fi
+
+if [ ! -d ${youdao} ]; then
+	mkdir ${youdao} -p
 fi
 
 function addToDoc() {
@@ -14,11 +20,17 @@ function addToDoc() {
 }
 
 function queryYoudao() {
-	curl -s "http://fanyi.youdao.com/openapi.do?keyfrom=youdao111&key=60638690&type=data&doctype=xml&version=1.1&q=$1" | sed -nf ${yrf} 
+	curl -s "http://fanyi.youdao.com/openapi.do?keyfrom=youdao111&key=60638690&type=data&doctype=xml&version=1.1&q=$1" > ${youdao}/$1.xml
+}
+
+function queryWord() {
+	if [ ! -e ${youdao}/$1.xml ]; then
+		queryYoudao $1
+	fi
+	cat ${youdao}/$1.xml | sed -nf ${yrf} 
 }
 
 function usage() {
-	self=${0##*/}
 	echo "简述："
 	echo "	单词本功能，单词本默认存储在~/study/dics/dics.txt中，没有会创建"
 	echo "SYNOPSIS"
@@ -44,15 +56,18 @@ case $1 in
 		mv ${dic_file}.tmp ${dic_file}
 		;;
 	ck)
-		queryYoudao $2
+		queryWord $2
 		;;
 	ca)
-		queryYoudao $2
+		queryWord $2
 		addToDoc $2
+		;;
+	help)
+		usage
 		;;
 	*)
 		# default action is addition.
-		usage
+		echo "	$self command [word]"
 		;;
 esac
 
