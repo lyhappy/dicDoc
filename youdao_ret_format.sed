@@ -6,7 +6,7 @@
 	/<us-phonetic>/s/.*CDATA\(.*\)\].*/  美式音标: \1/p
 	/<uk-phonetic>/s/.*CDATA\(.*\)\].*/  英式音标: \1/p
 	/explains/,/explains/ {
-		/ex/s/.*CDATA\[\(.*\)\].*/  \1/p
+		/ex/s/.*CDATA\[\(.*\)\]\].*/  \1/p
 	}
 	/<explains>/s/.*/基本释义:/p
 }
